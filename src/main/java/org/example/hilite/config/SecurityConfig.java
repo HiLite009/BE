@@ -27,11 +27,7 @@ public class SecurityConfig {
   @Bean
   public UserDetailsService userDetailsService() {
     return new InMemoryUserDetailsManager(
-        User.withUsername("user")
-            .password("{noop}password")
-            .roles("USER")
-            .build()
-    );
+        User.withUsername("user").password("{noop}password").roles("USER").build());
   }
 
   @Bean
@@ -42,15 +38,13 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http
-        .csrf(AbstractHttpConfigurer::disable)
+    http.csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/login").permitAll()
-            .anyRequest().authenticated()
-        )
-        .addFilterBefore(new JwtFilter(jwtUtil, userDetailsService()),
+        .authorizeHttpRequests(
+            auth -> auth.requestMatchers("/login").permitAll().anyRequest().authenticated())
+        .addFilterBefore(
+            new JwtFilter(jwtUtil, userDetailsService()),
             UsernamePasswordAuthenticationFilter.class);
 
     return http.build();

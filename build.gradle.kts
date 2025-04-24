@@ -1,6 +1,7 @@
 plugins {
     java
     checkstyle
+    id("com.diffplug.spotless") version "6.25.0"
     id("org.springframework.boot") version "3.4.4"
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -18,6 +19,13 @@ checkstyle {
     toolVersion = "10.23.0" // 원하는 버전으로
     configFile = file("${rootDir}/config/google-check.xml") // 룰셋 위치
     isShowViolations = true // 터미널에 위반 항목 출력
+}
+
+spotless {
+    java {
+        googleJavaFormat("1.26.0")
+        target("src/**/*.java")
+    }
 }
 
 configurations {

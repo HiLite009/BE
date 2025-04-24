@@ -9,5 +9,4 @@ public class HiliteApplication {
   public static void main(String[] args) {
     SpringApplication.run(HiliteApplication.class, args);
   }
-
 }
