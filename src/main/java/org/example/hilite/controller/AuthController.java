@@ -1,7 +1,9 @@
 package org.example.hilite.controller;
 
-import java.util.Map;
-import org.example.hilite.util.JwtUtil;
+import jakarta.validation.Valid;
+import org.example.hilite.common.util.JwtUtil;
+import org.example.hilite.dto.LoginRequestDto;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,13 +29,13 @@ public class AuthController {
   }
 
   @PostMapping("/login")
-  public String login(@RequestBody Map<String, String> loginData) {
-    String username = loginData.get("username");
-    String password = loginData.get("password");
+  public ResponseEntity<String> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
+    String username = loginRequestDto.username();
+    String password = loginRequestDto.password();
 
     authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
     UserDetails user = userDetailsService.loadUserByUsername(username);
-    return jwtUtil.generateToken(user.getUsername());
+    return ResponseEntity.ok(jwtUtil.generateToken(user.getUsername()));
   }
 }
