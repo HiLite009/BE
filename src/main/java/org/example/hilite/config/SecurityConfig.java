@@ -18,38 +18,41 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
-    private final JwtUtil jwtUtil;
+  private final JwtUtil jwtUtil;
 
-    public SecurityConfig(JwtUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
-    }
+  public SecurityConfig(JwtUtil jwtUtil) {
+    this.jwtUtil = jwtUtil;
+  }
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return new InMemoryUserDetailsManager(
-                User.withUsername("user")
-                        .password("{noop}password")
-                        .roles("USER")
-                        .build()
-        );
-    }
+  @Bean
+  public UserDetailsService userDetailsService() {
+    return new InMemoryUserDetailsManager(
+        User.withUsername("user")
+            .password("{noop}password")
+            .roles("USER")
+            .build()
+    );
+  }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+      throws Exception {
+    return config.getAuthenticationManager();
+  }
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(new JwtFilter(jwtUtil, userDetailsService()), UsernamePasswordAuthenticationFilter.class);
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf(AbstractHttpConfigurer::disable)
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/login").permitAll()
+            .anyRequest().authenticated()
+        )
+        .addFilterBefore(new JwtFilter(jwtUtil, userDetailsService()),
+            UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+    return http.build();
+  }
 }

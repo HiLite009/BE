@@ -10,28 +10,28 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long EXPIRATION = 1000 * 60 * 60; // 1시간
+  private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+  private final long EXPIRATION = 1000 * 60 * 60; // 1시간
 
-    public String generateToken(String username) {
-        return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
-                .signWith(key)
-                .compact();
-    }
+  public String generateToken(String username) {
+    return Jwts.builder()
+        .setSubject(username)
+        .setIssuedAt(new Date())
+        .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+        .signWith(key)
+        .compact();
+  }
 
-    public String validateAndGetUsername(String token) {
-        try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody()
-                    .getSubject();
-        } catch (JwtException e) {
-            throw new RuntimeException("Invalid JWT");
-        }
+  public String validateAndGetUsername(String token) {
+    try {
+      return Jwts.parserBuilder()
+          .setSigningKey(key)
+          .build()
+          .parseClaimsJws(token)
+          .getBody()
+          .getSubject();
+    } catch (JwtException e) {
+      throw new RuntimeException("Invalid JWT");
     }
+  }
 }

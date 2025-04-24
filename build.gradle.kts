@@ -1,5 +1,6 @@
 plugins {
     java
+    checkstyle
     id("org.springframework.boot") version "3.4.4"
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -11,6 +12,12 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+}
+
+checkstyle {
+    toolVersion = "10.23.0" // 원하는 버전으로
+    configFile = file("${rootDir}/config/google-check.xml") // 룰셋 위치
+    isShowViolations = true // 터미널에 위반 항목 출력
 }
 
 configurations {
