@@ -16,9 +16,11 @@ java {
 }
 
 checkstyle {
-    toolVersion = "10.23.0" // 원하는 버전으로
-    configFile = file("${rootDir}/config/google-check.xml") // 룰셋 위치
-    isShowViolations = true // 터미널에 위반 항목 출력
+    toolVersion = "10.23.0"
+    // Location of the Checkstyle configuration file
+    configFile = file("${rootDir}/config/google-check.xml")
+    // Enabble violation reporting in terminal
+    isShowViolations = true
 }
 
 spotless {
@@ -49,6 +51,7 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
+    implementation("org.springframework.boot:spring-boot-starter-validation") // validation
 }
 
 tasks.withType<Test> {
