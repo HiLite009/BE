@@ -1,4 +1,4 @@
-package org.example.hilite.util;
+package org.example.hilite.common.util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
