@@ -1,7 +1,7 @@
 package org.example.hilite.config;
 
+import org.example.hilite.common.util.JwtUtil;
 import org.example.hilite.filter.JwtFilter;
-import org.example.hilite.util.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,6 +36,7 @@ public class SecurityConfig {
     return config.getAuthenticationManager();
   }
 
+  // todo Exception handling 구현
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
