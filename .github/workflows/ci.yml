@@ -36,13 +36,16 @@ jobs:
       - name: Set up application-private.yml from GitHub Secrets
         run: |
           mkdir -p src/main/resources
-          echo "spring:" > src/main/resources/application-private.yml
-          echo "  datasource:" >> src/main/resources/application-private.yml
-          echo "    url: jdbc:mysql://${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}" >> src/main/resources/application-private.yml
-          echo "    username: ${{ secrets.DB_USERNAME }}" >> src/main/resources/application-private.yml
-          echo "    password: ${{ secrets.DB_PASSWORD }}" >> src/main/resources/application-private.yml
-          echo "jwt:" >> src/main/resources/application-private.yml
-          echo "  secret: ${{ secrets.JWT_SECRET }}" >> src/main/resources/application-private.yml
+          cat <<EOF > src/main/resources/application-private.yml
+          spring:
+            datasource:
+              url: jdbc:mysql://${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}
+              username: ${{ secrets.DB_USERNAME }}
+              password: ${{ secrets.DB_PASSWORD }}
+          
+          jwt:
+            secret: ${{ secrets.JWT_SECRET }}
+          EOF
 
       - name: Run Checkstyle
         run: ./gradlew checkstyleMain checkstyleTest
