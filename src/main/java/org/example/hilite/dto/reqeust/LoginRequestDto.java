@@ -1,4 +1,4 @@
-package org.example.hilite.dto;
+package org.example.hilite.dto.reqeust;
 
 import jakarta.validation.constraints.NotBlank;
 
