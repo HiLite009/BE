@@ -3,3 +3,8 @@ spring:
     name: hilite
   profiles:
     active: private
+
+logging:
+  level:
+    root: info
+    org.example: debug
