@@ -37,13 +37,16 @@ public class UserService {
     user.setPassword(passwordEncoder.encode(requestDto.password()));
     user.setEmail(requestDto.email());
 
-    Role userRole =
-        roleRepository
-            .findByName("ROLE_USER")
-            .orElseThrow(() -> new IllegalArgumentException("기본 권한이 설정되어 있지 않습니다."));
+    Role userRole = roleRepository.findByName("ROLE_USER")
+        .orElseThrow(() -> new IllegalArgumentException("기본 권한이 설정되어 있지 않습니다."));
 
-    user.getRoles().add(userRole);
+    user.addRole(userRole);
 
     userRepository.save(user);
+  }
+
+  @Transactional(readOnly = true)
+  public boolean checkEmail(String email) {
+    return userRepository.existsByEmail(email);
   }
 }

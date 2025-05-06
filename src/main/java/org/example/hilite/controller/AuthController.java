@@ -2,6 +2,7 @@ package org.example.hilite.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.hilite.common.util.JwtUtil;
 import org.example.hilite.dto.reqeust.LoginRequestDto;
 import org.example.hilite.dto.reqeust.SignupRequestDto;
@@ -11,12 +12,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
   private final AuthenticationManager authenticationManager;
@@ -30,9 +33,13 @@ public class AuthController {
     String password = loginRequestDto.password();
 
     authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-
     UserDetails user = userDetailsService.loadUserByUsername(username);
     return ResponseEntity.ok(jwtUtil.generateToken(user.getUsername()));
+  }
+
+  @GetMapping("/check-email")
+  public ResponseEntity<Boolean> checkEmail(@RequestBody String email) {
+    return ResponseEntity.ok(true);
   }
 
   @PostMapping("/signup")
