@@ -1,6 +1,7 @@
 package org.example.hilite.common.util;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.Date;
@@ -28,6 +29,10 @@ public class JwtUtil {
 
   public String validateAndGetUsername(String token) {
     try {
+      if (token.startsWith("Bearer ")) {
+        token = token.substring(7);
+      }
+
       return Jwts.parserBuilder()
           .setSigningKey(key)
           .build()
