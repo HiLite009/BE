@@ -1,5 +1,8 @@
 package org.example.hilite.controller;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,11 +41,15 @@ public class AuthController {
   }
 
   @GetMapping("/check-email")
-  public ResponseEntity<Boolean> checkEmail(@RequestBody String email) {
+  public ResponseEntity<Boolean> checkEmail(String email) {
     return ResponseEntity.ok(true);
   }
 
   @PostMapping("/signup")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
+      @ApiResponse(responseCode = "400", description = "Bad Request")
+  })
   public String signup(@RequestBody @Valid SignupRequestDto requestDto) {
     userService.signup(requestDto);
     return "회원가입이 완료되었습니다.";

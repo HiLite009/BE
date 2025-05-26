@@ -51,6 +51,7 @@ public class SecurityConfig {
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/login").permitAll()
+            .requestMatchers("/signup").permitAll()
             .requestMatchers("/test").permitAll()
 
             // todo: ip 및 Role 기반으로 제어

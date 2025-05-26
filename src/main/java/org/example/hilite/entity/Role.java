@@ -3,6 +3,7 @@ package org.example.hilite.entity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import java.util.ArrayList;
@@ -16,13 +17,16 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Role {
-  @Id @GeneratedValue private Long id;
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
   private String name;
 
-  @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<UserRole> userRoles = new HashSet<>();
 
-  @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
-  private List<AccessPage> accessPages = new ArrayList<>();
+  @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+  private Set<RolePagePermission> pagePermissions = new HashSet<>();
 }

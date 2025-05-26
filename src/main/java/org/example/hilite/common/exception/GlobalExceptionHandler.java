@@ -4,12 +4,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -30,7 +31,7 @@ public class GlobalExceptionHandler {
             request.getRequestURI(),
             fieldErrors);
 
-    return ResponseEntity.badRequest().body(errorResponse);
+    return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(errorResponse);
   }
 
   @ExceptionHandler(IllegalArgumentException.class)
@@ -44,7 +45,7 @@ public class GlobalExceptionHandler {
             ex.getMessage(),
             request.getRequestURI(),
             Map.of());
-    return ResponseEntity.badRequest().body(response);
+    return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(response);
   }
 
   @ExceptionHandler(Exception.class)
@@ -58,6 +59,6 @@ public class GlobalExceptionHandler {
             "예기치 못한 오류가 발생했습니다.",
             request.getRequestURI(),
             Map.of());
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(response);
   }
 }
