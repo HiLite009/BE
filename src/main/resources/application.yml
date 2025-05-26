@@ -9,3 +9,4 @@ logging:
   level:
     root: info
     org.example: debug
+    org.springframework.security: debug

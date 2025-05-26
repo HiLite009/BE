@@ -35,12 +35,15 @@ public class AdminController {
   @Operation(summary = "권한 생성", description = "권한을 생성합니다.")
   @ApiResponses(
       value = {
-          @ApiResponse(responseCode = "200", description = "권한 생성 성공", content = {
-              @Content(schema = @Schema(implementation = RoleResponseDto.class))}),
-          @ApiResponse(responseCode = "500", description = "권한 생성 실패", content = {
-              @Content(schema = @Schema(implementation = ApiErrorResponse.class))})
-      }
-  )
+        @ApiResponse(
+            responseCode = "200",
+            description = "권한 생성 성공",
+            content = {@Content(schema = @Schema(implementation = RoleResponseDto.class))}),
+        @ApiResponse(
+            responseCode = "500",
+            description = "권한 생성 실패",
+            content = {@Content(schema = @Schema(implementation = ApiErrorResponse.class))})
+      })
   public ResponseEntity<RoleResponseDto> createRole(@RequestBody RoleRequestDto dto) {
     return ResponseEntity.ok(roleService.createRole(dto));
   }

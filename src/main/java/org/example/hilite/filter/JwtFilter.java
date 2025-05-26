@@ -41,8 +41,8 @@ public class JwtFilter extends OncePerRequestFilter {
           UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
           UsernamePasswordAuthenticationToken auth =
-              new UsernamePasswordAuthenticationToken(userDetails, null,
-                  userDetails.getAuthorities());
+              new UsernamePasswordAuthenticationToken(
+                  userDetails, null, userDetails.getAuthorities());
           auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
           SecurityContextHolder.getContext().setAuthentication(auth);
         }
@@ -51,14 +51,20 @@ public class JwtFilter extends OncePerRequestFilter {
         logger.warn("JWT authentication failed: {}", e);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
-        response.getWriter().write(
-            new ObjectMapper().writeValueAsString(Map.of(
-                "status", 401,
-                "error", "UNAUTHORIZED",
-                "message", "Invalid or expired JWT token",
-                "path", request.getRequestURI()
-            ))
-        );
+        response
+            .getWriter()
+            .write(
+                new ObjectMapper()
+                    .writeValueAsString(
+                        Map.of(
+                            "status",
+                            401,
+                            "error",
+                            "UNAUTHORIZED",
+                            "message",
+                            "Invalid or expired JWT token",
+                            "path",
+                            request.getRequestURI())));
         return; // 필터 체인을 더 이상 진행하지 않음
       }
     }

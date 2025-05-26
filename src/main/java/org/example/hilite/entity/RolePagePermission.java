@@ -13,9 +13,7 @@ import lombok.Setter;
 @Setter
 public class RolePagePermission {
 
-  @Id
-  @GeneratedValue
-  private Long id;
+  @Id @GeneratedValue private Long id;
 
   @ManyToOne
   @JoinColumn(name = "role_id")
@@ -24,5 +22,4 @@ public class RolePagePermission {
   @ManyToOne
   @JoinColumn(name = "access_page_id")
   private AccessPage accessPage;
-
 }

@@ -17,13 +17,12 @@ public class SwaggerConfig {
   @Bean
   public OpenAPI customOpenAPI() {
     return new OpenAPI()
-        .info(new Info()
-            .title("My API")
-            .version("v1"))
+        .info(new Info().title("My API").version("v1"))
         .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
         .components(
             new io.swagger.v3.oas.models.Components()
-                .addSecuritySchemes(SECURITY_SCHEME_NAME,
+                .addSecuritySchemes(
+                    SECURITY_SCHEME_NAME,
                     new SecurityScheme()
                         .name(SECURITY_SCHEME_NAME)
                         .type(Type.HTTP)
