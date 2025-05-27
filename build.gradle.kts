@@ -54,6 +54,7 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
     implementation("org.springframework.boot:spring-boot-starter-validation") // validation
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0") // springdoc-openapi
 }
 
 tasks.withType<Test> {

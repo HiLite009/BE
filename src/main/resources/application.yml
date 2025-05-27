@@ -3,3 +3,10 @@ spring:
     name: hilite
   profiles:
     active: private
+  jpa:
+    open-in-view: false
+logging:
+  level:
+    root: info
+    org.example: debug
+    org.springframework.security: debug
