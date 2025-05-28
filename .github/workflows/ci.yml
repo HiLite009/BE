@@ -59,12 +59,6 @@ jobs:
           jwt:
             secret: test-jwt-secret-for-testing
           
-          springdoc:
-            swagger-ui:
-              path: /swagger-ui.html
-              operations-sorter: method
-            api-docs:
-              path: /v3/api-docs
           
           logging:
             level:
@@ -76,19 +70,6 @@ jobs:
           echo "=== Created test application.yml ==="
           cat src/test/resources/application.yml
           echo "=================================="
-
-      - name: Add H2 dependency temporarily
-        run: |
-          # build.gradle.kts에 H2 의존성이 없다면 임시로 추가
-          if ! grep -q "h2database" build.gradle.kts; then
-            echo "Adding H2 dependency..."
-            sed -i '/dependencies {/a\    testImplementation("com.h2database:h2")' build.gradle.kts
-          fi
-          
-          # 수정된 build.gradle.kts 확인
-          echo "=== Dependencies section ==="
-          grep -A 20 "dependencies {" build.gradle.kts
-          echo "=========================="
 
       - name: Run Checkstyle
         run: ./gradlew checkstyleMain checkstyleTest
