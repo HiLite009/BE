@@ -65,7 +65,7 @@ jobs:
           
           # 생성된 파일 확인
           echo "=== Created test application.yml ==="
-          cat src/main/application-ci.yml
+          cat src/main/resources/application-ci.yml
           echo "=================================="
 
       - name: Run Checkstyle
