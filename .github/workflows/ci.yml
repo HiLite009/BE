@@ -34,33 +34,61 @@ jobs:
         run: chmod +x ./gradlew
 
       # CI 전용 설정 파일 생성
-      - name: Set up application-ci.yml for CI environment
+      - name: Set up test configuration
         run: |
-          mkdir -p src/main/resources
-          cat <<EOF > src/main/resources/application-ci.yml
+          # 테스트 리소스 디렉토리 생성
+          mkdir -p src/test/resources
+          
+          # 테스트용 application.yml 생성
+          cat <<EOF > src/test/resources/application.yml
           spring:
             datasource:
-              url: jdbc:h2:mem:cidb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+              url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
               driver-class-name: org.h2.Driver
               username: sa
               password: 
             jpa:
               hibernate:
                 ddl-auto: create-drop
-              show-sql: false
+              show-sql: true
               properties:
                 hibernate:
-                  format_sql: false
+                  format_sql: true
                   dialect: org.hibernate.dialect.H2Dialect
           
           jwt:
-            secret: ${{ secrets.JWT_SECRET }}
+            secret: test-jwt-secret-for-testing
+          
+          springdoc:
+            swagger-ui:
+              path: /swagger-ui.html
+              operations-sorter: method
+            api-docs:
+              path: /v3/api-docs
           
           logging:
             level:
-              org.springframework: WARN
-              com.yourpackage: INFO
+              org.springframework.boot: DEBUG
+              org.springframework.core.env: DEBUG
           EOF
+          
+          # 생성된 파일 확인
+          echo "=== Created test application.yml ==="
+          cat src/test/resources/application.yml
+          echo "=================================="
+
+      - name: Add H2 dependency temporarily
+        run: |
+          # build.gradle.kts에 H2 의존성이 없다면 임시로 추가
+          if ! grep -q "h2database" build.gradle.kts; then
+            echo "Adding H2 dependency..."
+            sed -i '/dependencies {/a\    testImplementation("com.h2database:h2")' build.gradle.kts
+          fi
+          
+          # 수정된 build.gradle.kts 확인
+          echo "=== Dependencies section ==="
+          grep -A 20 "dependencies {" build.gradle.kts
+          echo "=========================="
 
       - name: Run Checkstyle
         run: ./gradlew checkstyleMain checkstyleTest
@@ -68,8 +96,22 @@ jobs:
       - name: Run Spotless
         run: ./gradlew spotlessCheck
 
-      - name: Run Tests with CI profile
-        run: ./gradlew test -Dspring.profiles.active=ci --info
+      - name: Run Tests with debug info
+        run: |
+          echo "=== Running tests with debug information ==="
+          ./gradlew test --info --stacktrace
+
+      - name: Show test report on failure
+        if: failure()
+        run: |
+          echo "=== Test failed, showing report ==="
+          if [ -f "build/reports/tests/test/index.html" ]; then
+            echo "Test report exists"
+            # 간단한 에러 정보 추출
+            find build/reports/tests/test -name "*.html" -exec grep -l "FAILED" {} \; | head -5
+          else
+            echo "No test report found"
+          fi
 
       - name: Build Project with CI profile
         run: ./gradlew build -x test -Dspring.profiles.active=ci
