@@ -11,18 +11,18 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserRole {
+public class MemberRole {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne private User user;
+  @ManyToOne private Member member;
 
   @Getter @ManyToOne private Role role;
 
-  public UserRole(User user, Role role) {
-    this.user = user;
+  public MemberRole(Member member, Role role) {
+    this.member = member;
     this.role = role;
   }
 }

@@ -15,7 +15,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class User {
+public class Member {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,10 +26,10 @@ public class User {
   private String email;
 
   @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-  private Set<UserRole> userRoles = new HashSet<>();
+  private Set<MemberRole> memberRoles = new HashSet<>();
 
   public void addRole(Role role) {
-    UserRole userRole = new UserRole(this, role);
-    userRoles.add(userRole);
+    MemberRole memberRole = new MemberRole(this, role);
+    memberRoles.add(memberRole);
   }
 }

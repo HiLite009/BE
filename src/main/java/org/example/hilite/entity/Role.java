@@ -23,7 +23,7 @@ public class Role {
   private String name;
 
   @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<UserRole> userRoles = new HashSet<>();
+  private Set<MemberRole> memberRoles = new HashSet<>();
 
   @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<RolePagePermission> pagePermissions = new HashSet<>();

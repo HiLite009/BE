@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.hilite.common.util.JwtUtil;
 import org.example.hilite.dto.reqeust.LoginRequestDto;
 import org.example.hilite.dto.reqeust.SignupRequestDto;
-import org.example.hilite.service.UserService;
+import org.example.hilite.service.MemberService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,7 +29,7 @@ public class AuthController {
 
   private final AuthenticationManager authenticationManager;
   private final UserDetailsService userDetailsService;
-  private final UserService userService;
+  private final MemberService memberService;
   private final JwtUtil jwtUtil;
 
   @PostMapping("/login")
@@ -43,7 +43,7 @@ public class AuthController {
     UserDetails user = (UserDetails) authentication.getPrincipal();
     String token = jwtUtil.generateToken(user.getUsername());
 
-    log.info("User logged in successfully: {}", user.getUsername());
+    log.info("Member logged in successfully: {}", user.getUsername());
 
     return ResponseEntity.ok(
         Map.of("token", token, "username", user.getUsername(), "message", "로그인이 완료되었습니다."));
@@ -64,7 +64,7 @@ public class AuthController {
         @ApiResponse(responseCode = "400", description = "Bad Request")
       })
   public String signup(@RequestBody @Valid SignupRequestDto requestDto) {
-    userService.signup(requestDto);
+    memberService.signup(requestDto);
     return "회원가입이 완료되었습니다.";
   }
 }
