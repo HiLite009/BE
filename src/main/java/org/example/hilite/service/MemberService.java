@@ -2,10 +2,10 @@ package org.example.hilite.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.hilite.dto.reqeust.SignupRequestDto;
-import org.example.hilite.entity.Role;
 import org.example.hilite.entity.Member;
-import org.example.hilite.repository.RoleRepository;
+import org.example.hilite.entity.Role;
 import org.example.hilite.repository.MemberRepository;
+import org.example.hilite.repository.RoleRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
