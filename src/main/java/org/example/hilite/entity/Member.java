@@ -25,7 +25,7 @@ public class Member {
   private String password;
   private String email;
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "member", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   private Set<MemberRole> memberRoles = new HashSet<>();
 
   public void addRole(Role role) {
