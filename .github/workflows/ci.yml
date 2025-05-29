@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: ubuntu
 
     steps:
       - name: Checkout Repository
@@ -75,10 +75,10 @@ jobs:
       - name: Run Spotless
         run: ./gradlew spotlessCheck
 
-#      - name: Run Tests
-#        run: |
-#          echo "=== Running tests with debug information ==="
-#          ./gradlew test -Dspring.profiles.active=ci --info --stacktrace
+      - name: Run Tests
+        run: |
+          echo "=== Running tests with debug information ==="
+          ./gradlew test -Dspring.profiles.active=ci --info --stacktrace
 
       - name: Build Project
         run: ./gradlew build -x test -Dspring.profiles.active=ci --info --stacktrace
