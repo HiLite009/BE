@@ -20,6 +20,6 @@ class HiliteApplicationTests {
   @Test
   void checkJwtSecret() {
     System.out.println("🔥 Loaded JWT Secret from application-test.yml: " + jwtSecret);
-//    assert jwtSecret.equals("test-jwt-secret-for-testing");
+    //    assert jwtSecret.equals("test-jwt-secret-for-testing");
   }
 }
