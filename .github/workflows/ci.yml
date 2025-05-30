@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
@@ -33,19 +33,41 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      - name: Set up application-private.yml from GitHub Secrets
-        run: |
-          mkdir -p src/main/resources
-          cat <<EOF > src/main/resources/application-private.yml
+      # CI 전용 설정 파일 생성
+      - name: Set up ci configuration
+        run: |          
+          # CI application-ci.yml 생성
+          cat <<EOF > src/main/resources/application-ci.yml
           spring:
             datasource:
-              url: jdbc:mysql://${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}
-              username: ${{ secrets.DB_USERNAME }}
-              password: ${{ secrets.DB_PASSWORD }}
+              url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+              driver-class-name: org.h2.Driver
+              username: sa
+              password: 
+            jpa:
+              hibernate:
+                ddl-auto: create-drop
+              show-sql: true
+              properties:
+                hibernate:
+                  format_sql: true
+                  dialect: org.hibernate.dialect.H2Dialect
           
           jwt:
-            secret: ${{ secrets.JWT_SECRET }}
+            secret: test-jwt-secret-for-testing
+          
+          
+          logging:
+            level:
+              org.springframework.boot: DEBUG
+              org.springframework.core.env: TRACE
+          
           EOF
+          
+          # 생성된 파일 확인
+          echo "=== Created test application.yml ==="
+          cat src/main/resources/application-ci.yml
+          echo "=================================="
 
       - name: Run Checkstyle
         run: ./gradlew checkstyleMain checkstyleTest
@@ -54,7 +76,9 @@ jobs:
         run: ./gradlew spotlessCheck
 
       - name: Run Tests
-        run: ./gradlew test
+        run: |
+          echo "=== Running tests with debug information ==="
+          ./gradlew test
 
       - name: Build Project
-        run: ./gradlew build
+        run: ./gradlew build -x test -Dspring.profiles.active=ci --info --stacktrace
