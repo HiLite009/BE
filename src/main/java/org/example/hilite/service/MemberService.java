@@ -1,7 +1,10 @@
 package org.example.hilite.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.example.hilite.dto.reqeust.SignupRequestDto;
+import org.example.hilite.dto.response.MemberResponseDto;
 import org.example.hilite.entity.Member;
 import org.example.hilite.entity.Role;
 import org.example.hilite.repository.MemberRepository;
@@ -50,5 +53,36 @@ public class MemberService {
   @Transactional(readOnly = true)
   public boolean checkEmail(String email) {
     return memberRepository.existsByEmail(email);
+  }
+
+  @Transactional(readOnly = true)
+  public MemberResponseDto getMemberInfo(String username) {
+    Member member =
+        memberRepository
+            .findByUsername(username)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+    List<String> roles =
+        member.getMemberRoles().stream()
+            .map(memberRole -> memberRole.getRole().getName())
+            .collect(Collectors.toList());
+
+    return new MemberResponseDto(member.getId(), member.getUsername(), member.getEmail(), roles);
+  }
+
+  @Transactional(readOnly = true)
+  public List<MemberResponseDto> getAllMembers() {
+    return memberRepository.findAll().stream()
+        .map(
+            member -> {
+              List<String> roles =
+                  member.getMemberRoles().stream()
+                      .map(memberRole -> memberRole.getRole().getName())
+                      .collect(Collectors.toList());
+
+              return new MemberResponseDto(
+                  member.getId(), member.getUsername(), member.getEmail(), roles);
+            })
+        .collect(Collectors.toList());
   }
 }

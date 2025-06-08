@@ -35,22 +35,26 @@ public class DataInitializer {
     Role guestRole = createRoleIfNotExists("ROLE_GUEST");
 
     // 기본 페이지 경로 생성
-    AccessPage adminPages = createPageIfNotExists("/api/admin/**");
+    AccessPage adminPages = createPageIfNotExists("/admin/**");
     AccessPage playPages = createPageIfNotExists("/play/**");
     AccessPage userPages = createPageIfNotExists("/api/user/**");
+    AccessPage memberPages = createPageIfNotExists("/member/**");
 
     // 기본 권한 설정
     createPermissionIfNotExists(adminRole, adminPages);
     createPermissionIfNotExists(adminRole, playPages);
     createPermissionIfNotExists(adminRole, userPages);
+    createPermissionIfNotExists(adminRole, memberPages);
 
     createPermissionIfNotExists(userRole, userPages);
     createPermissionIfNotExists(userRole, playPages);
+    createPermissionIfNotExists(userRole, memberPages);
 
     createPermissionIfNotExists(guestRole, playPages);
 
-    // 관리자 계정 생성
+    // 계정 생성
     createAdminIfNotExists(adminRole);
+    createUserIfNotExists(userRole);
 
     log.info("초기 데이터 설정이 완료되었습니다.");
   }
@@ -93,6 +97,18 @@ public class DataInitializer {
       admin.addRole(adminRole);
       memberRepository.save(admin);
       log.info("관리자 계정이 생성되었습니다. (username: admin, password: admin123)");
+    }
+  }
+
+  private void createUserIfNotExists(Role userRole) {
+    if (!memberRepository.existsByUsername("user")) {
+      Member user = new Member();
+      user.setUsername("user");
+      user.setPassword(passwordEncoder.encode("user123"));
+      user.setEmail("user@example.com");
+      user.addRole(userRole);
+      memberRepository.save(user);
+      log.info("일반 사용자 계정이 생성되었습니다. (username: user, password: user123)");
     }
   }
 }
