@@ -38,17 +38,19 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
-        .sessionManagement(session ->
-            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(auth ->
-            auth.requestMatchers("/login", "/signup", "/test").permitAll()
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                // 동적 권한 관리를 위한 설정
-                .anyRequest().access(dynamicAuthorizationManager)
-        )
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers("/login", "/signup", "/test")
+                    .permitAll()
+                    .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                    .permitAll()
+                    // 동적 권한 관리를 위한 설정
+                    .anyRequest()
+                    .access(dynamicAuthorizationManager))
         .addFilterBefore(
-            new JwtFilter(jwtUtil, userDetailsService),
-            UsernamePasswordAuthenticationFilter.class);
+            new JwtFilter(jwtUtil, userDetailsService), UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
   }

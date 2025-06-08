@@ -16,10 +16,12 @@ public class AccessPageService {
 
   @Transactional
   public ProtectedPageResponseDto saveAccessPage(String path) {
-    accessPageRepository.findByPath(path)
-        .ifPresent(accessPage -> {
-          throw new IllegalArgumentException("이미 존재하는 경로입니다.");
-        });
+    accessPageRepository
+        .findByPath(path)
+        .ifPresent(
+            accessPage -> {
+              throw new IllegalArgumentException("이미 존재하는 경로입니다.");
+            });
 
     AccessPage saved = accessPageRepository.save(new AccessPage(path));
     return new ProtectedPageResponseDto(saved.getId(), saved.getPath());
@@ -27,16 +29,17 @@ public class AccessPageService {
 
   @Transactional(readOnly = true)
   public List<ProtectedPageResponseDto> getAllAccessPages() {
-    return accessPageRepository.findAll()
-        .stream()
+    return accessPageRepository.findAll().stream()
         .map(page -> new ProtectedPageResponseDto(page.getId(), page.getPath()))
         .toList();
   }
 
   @Transactional
   public void deleteAccessPage(Long id) {
-    AccessPage accessPage = accessPageRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 페이지입니다."));
+    AccessPage accessPage =
+        accessPageRepository
+            .findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 페이지입니다."));
 
     accessPageRepository.delete(accessPage);
   }

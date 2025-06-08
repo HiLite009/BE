@@ -21,16 +21,16 @@ public class CustomUserDetailsService implements UserDetailsService {
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     log.debug("Loading user by username: {}", username);
 
-    Member member = memberRepository.findByUsername(username)
-        .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
+    Member member =
+        memberRepository
+            .findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
 
-    log.debug("Found member: {} with roles: {}",
+    log.debug(
+        "Found member: {} with roles: {}",
         member.getUsername(),
-        member.getMemberRoles().stream()
-            .map(mr -> mr.getRole().getName())
-            .toList());
+        member.getMemberRoles().stream().map(mr -> mr.getRole().getName()).toList());
 
     return new CustomUserDetails(member);
   }
 }
-

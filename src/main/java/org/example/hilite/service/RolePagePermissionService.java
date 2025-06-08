@@ -24,17 +24,23 @@ public class RolePagePermissionService {
   @Transactional
   public RolePagePermissionResponseDto createPermission(RolePagePermissionRequestDto requestDto) {
     // 역할과 페이지 조회
-    Role role = roleRepository.findById(requestDto.roleId())
-        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 역할입니다."));
+    Role role =
+        roleRepository
+            .findById(requestDto.roleId())
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 역할입니다."));
 
-    AccessPage accessPage = accessPageRepository.findById(requestDto.pageId())
-        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 페이지입니다."));
+    AccessPage accessPage =
+        accessPageRepository
+            .findById(requestDto.pageId())
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 페이지입니다."));
 
     // 중복 권한 체크
-    rolePagePermissionRepository.findByRoleIdAndPageId(requestDto.roleId(), requestDto.pageId())
-        .ifPresent(existing -> {
-          throw new IllegalArgumentException("이미 존재하는 권한입니다.");
-        });
+    rolePagePermissionRepository
+        .findByRoleIdAndPageId(requestDto.roleId(), requestDto.pageId())
+        .ifPresent(
+            existing -> {
+              throw new IllegalArgumentException("이미 존재하는 권한입니다.");
+            });
 
     // 권한 생성
     RolePagePermission permission = new RolePagePermission();
@@ -49,32 +55,29 @@ public class RolePagePermissionService {
         role.getName(),
         accessPage.getId(),
         accessPage.getPath(),
-        true
-    );
+        true);
   }
 
   @Transactional
   public void deletePermission(Long permissionId) {
-    RolePagePermission permission = rolePagePermissionRepository.findById(permissionId)
-        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 권한입니다."));
+    RolePagePermission permission =
+        rolePagePermissionRepository
+            .findById(permissionId)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 권한입니다."));
 
     rolePagePermissionRepository.delete(permission);
   }
 
   @Transactional(readOnly = true)
   public List<RolePagePermissionResponseDto> getPermissionsByRole(String roleName) {
-    return rolePagePermissionRepository.findByRoleNameWithDetails(roleName)
-        .stream()
+    return rolePagePermissionRepository.findByRoleNameWithDetails(roleName).stream()
         .map(this::toResponseDto)
         .toList();
   }
 
   @Transactional(readOnly = true)
   public List<RolePagePermissionResponseDto> getAllPermissions() {
-    return rolePagePermissionRepository.findAll()
-        .stream()
-        .map(this::toResponseDto)
-        .toList();
+    return rolePagePermissionRepository.findAll().stream().map(this::toResponseDto).toList();
   }
 
   private RolePagePermissionResponseDto toResponseDto(RolePagePermission permission) {
@@ -84,7 +87,6 @@ public class RolePagePermissionService {
         permission.getRole().getName(),
         permission.getAccessPage().getId(),
         permission.getAccessPage().getPath(),
-        true
-    );
+        true);
   }
 }

@@ -56,22 +56,25 @@ public class DataInitializer {
   }
 
   private Role createRoleIfNotExists(String roleName) {
-    return roleRepository.findByName(roleName)
-        .orElseGet(() -> {
-          Role role = new Role();
-          role.setName(roleName);
-          return roleRepository.save(role);
-        });
+    return roleRepository
+        .findByName(roleName)
+        .orElseGet(
+            () -> {
+              Role role = new Role();
+              role.setName(roleName);
+              return roleRepository.save(role);
+            });
   }
 
   private AccessPage createPageIfNotExists(String path) {
-    return accessPageRepository.findByPath(path)
+    return accessPageRepository
+        .findByPath(path)
         .orElseGet(() -> accessPageRepository.save(new AccessPage(path)));
   }
 
   private void createPermissionIfNotExists(Role role, AccessPage page) {
-    boolean exists = rolePagePermissionRepository.findByRoleIdAndPageId(role.getId(), page.getId())
-        .isPresent();
+    boolean exists =
+        rolePagePermissionRepository.findByRoleIdAndPageId(role.getId(), page.getId()).isPresent();
 
     if (!exists) {
       RolePagePermission permission = new RolePagePermission();

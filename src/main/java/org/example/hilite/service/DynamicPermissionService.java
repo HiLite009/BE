@@ -22,8 +22,8 @@ public class DynamicPermissionService {
     log.debug("Checking permission for path: {} with roles: {}", requestPath, roleNames);
 
     // 정확한 경로 매칭 먼저 확인
-    List<RolePagePermission> exactMatch = rolePagePermissionRepository
-        .findByRoleNamesAndPath(roleNames, requestPath);
+    List<RolePagePermission> exactMatch =
+        rolePagePermissionRepository.findByRoleNamesAndPath(roleNames, requestPath);
 
     if (!exactMatch.isEmpty()) {
       log.debug("Exact path match found for: {}", requestPath);
@@ -31,11 +31,12 @@ public class DynamicPermissionService {
     }
 
     // 패턴 매칭 (/** 형태)
-    List<RolePagePermission> allPermissions = rolePagePermissionRepository
-        .findByRoleNames(roleNames);
+    List<RolePagePermission> allPermissions =
+        rolePagePermissionRepository.findByRoleNames(roleNames);
 
-    boolean hasAccess = allPermissions.stream()
-        .anyMatch(permission -> pathMatches(permission.getAccessPage().getPath(), requestPath));
+    boolean hasAccess =
+        allPermissions.stream()
+            .anyMatch(permission -> pathMatches(permission.getAccessPage().getPath(), requestPath));
 
     log.debug("Pattern matching result for path {}: {}", requestPath, hasAccess);
     return hasAccess;

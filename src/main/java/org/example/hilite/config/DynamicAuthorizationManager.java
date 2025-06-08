@@ -16,13 +16,14 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class DynamicAuthorizationManager implements AuthorizationManager<RequestAuthorizationContext> {
+public class DynamicAuthorizationManager
+    implements AuthorizationManager<RequestAuthorizationContext> {
 
   private final DynamicPermissionService dynamicPermissionService;
 
   @Override
-  public AuthorizationDecision check(Supplier<Authentication> authentication,
-      RequestAuthorizationContext context) {
+  public AuthorizationDecision check(
+      Supplier<Authentication> authentication, RequestAuthorizationContext context) {
 
     Authentication auth = authentication.get();
 
@@ -35,12 +36,16 @@ public class DynamicAuthorizationManager implements AuthorizationManager<Request
     String requestPath = context.getRequest().getRequestURI();
 
     // 사용자의 권한 목록 추출 (ROLE_ 프리픽스 제거)
-    Collection<String> userRoles = auth.getAuthorities().stream()
-        .map(GrantedAuthority::getAuthority)
-        .collect(Collectors.toList());
+    Collection<String> userRoles =
+        auth.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.toList());
 
-    log.debug("Checking authorization for user: {} with roles: {} for path: {}",
-        auth.getName(), userRoles, requestPath);
+    log.debug(
+        "Checking authorization for user: {} with roles: {} for path: {}",
+        auth.getName(),
+        userRoles,
+        requestPath);
 
     boolean hasPermission = dynamicPermissionService.hasPermission(requestPath, userRoles);
 
