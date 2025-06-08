@@ -22,6 +22,7 @@ public class SecurityConfig {
 
   private final JwtUtil jwtUtil;
   private final CustomUserDetailsService userDetailsService;
+  private final DynamicAuthorizationManager dynamicAuthorizationManager;
 
   @Bean
   public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
@@ -37,22 +38,17 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
-        .sessionManagement(
-            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(
-            auth ->
-                auth.requestMatchers("/login")
-                    .permitAll()
-                    .requestMatchers("/signup")
-                    .permitAll()
-                    .requestMatchers("/test")
-                    .permitAll()
-
-                    // todo: ip 및 Role 기반으로 제어
-                    .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
-                    .permitAll())
+        .sessionManagement(session ->
+            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(auth ->
+            auth.requestMatchers("/login", "/signup", "/test").permitAll()
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                // 동적 권한 관리를 위한 설정
+                .anyRequest().access(dynamicAuthorizationManager)
+        )
         .addFilterBefore(
-            new JwtFilter(jwtUtil, userDetailsService), UsernamePasswordAuthenticationFilter.class);
+            new JwtFilter(jwtUtil, userDetailsService),
+            UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
   }
