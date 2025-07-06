@@ -38,6 +38,22 @@ public class GlobalExceptionHandler {
     return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(errorResponse);
   }
 
+  @ExceptionHandler(CustomException.class)
+  public ResponseEntity<ApiErrorResponse> handleCustomException(
+      CustomException ex, HttpServletRequest request) {
+    ApiErrorResponse response =
+        new ApiErrorResponse(
+            ex.getErrorCode().httpStatus().value(),
+            ex.getErrorCode().httpStatus().getReasonPhrase(),
+            ex.getErrorCode().code(),
+            ex.getErrorCode().message(),
+            request.getRequestURI(),
+            Map.of());
+    return ResponseEntity.status(ex.getErrorCode().httpStatus())
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(response);
+  }
+
   @ExceptionHandler({BadCredentialsException.class, AuthenticationException.class})
   public ResponseEntity<ApiErrorResponse> handleAuthenticationException(
       Exception ex, HttpServletRequest request) {
