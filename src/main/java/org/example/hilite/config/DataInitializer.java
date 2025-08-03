@@ -37,12 +37,14 @@ public class DataInitializer {
     // 기본 페이지 경로 생성
     AccessPage adminPages = createPageIfNotExists("/admin/**");
     AccessPage playPages = createPageIfNotExists("/play/**");
-    AccessPage userPages = createPageIfNotExists("/api/user/**");
+    AccessPage chatPages = createPageIfNotExists("/chat/**");
+    AccessPage userPages = createPageIfNotExists("/user/**");
     AccessPage memberPages = createPageIfNotExists("/member/**");
 
     // 기본 권한 설정
     createPermissionIfNotExists(adminRole, adminPages);
     createPermissionIfNotExists(adminRole, playPages);
+    createPermissionIfNotExists(adminRole, chatPages);
     createPermissionIfNotExists(adminRole, userPages);
     createPermissionIfNotExists(adminRole, memberPages);
 

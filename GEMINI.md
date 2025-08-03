@@ -18,6 +18,9 @@ This is a Spring Boot application named `hilite`.
 *   **Spring Boot Starter Validation**: For data validation
 *   **Checkstyle**: For code style checking
 *   **Spotless**: For code formatting
+*   **Spring REST Docs**: For API documentation and testing.
+*   **Asciidoctor**: For generating documentation from AsciiDoc.
+*   **REST Docs API Spec**: For generating OpenAPI 3 specifications from Spring REST Docs.
 
 ## Project Structure
 
