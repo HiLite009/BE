@@ -28,9 +28,7 @@ java {
 
 checkstyle {
     toolVersion = "10.23.0"
-    // Location of the Checkstyle configuration file
     configFile = file("${rootDir}/config/google-check.xml")
-    // Ennable violation reporting in terminal
     isShowViolations = true
 }
 
@@ -54,49 +52,56 @@ repositories {
 val snippetsDir by extra { file("build/generated-snippets") }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-web")
-
-    // JPA
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    // WebFlux
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
 
     // R2DBC
-    // implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
+    implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
+    implementation("org.projectlombok:lombok:1.18.34")
 
-    // WebFlux 의존성
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    // R2DBC 드라이버
+    runtimeOnly("io.asyncer:r2dbc-mysql:1.1.2")
+    runtimeOnly("io.r2dbc:r2dbc-h2")
 
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.projectlombok:lombok")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
 
-    // 데이터베이스 드라이버
-    runtimeOnly("com.mysql:mysql-connector-j")      // MySQL JDBC 드라이버 (JPA용)
-    //runtimeOnly("io.asyncer:r2dbc-mysql:1.1.2")     // MySQL R2DBC 드라이버 (WebFlux용)
-     runtimeOnly("com.h2database:h2")                // H2 JDBC 드라이버
-    //runtimeOnly("io.r2dbc:r2dbc-h2") // H2 R2DBC 드라이버
-
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
-
+    // security
     implementation("org.springframework.boot:spring-boot-starter-security")
 
-    // jwt
+    // JWT
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
-    // open api
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0") // springdoc-openapi
-    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
-    testImplementation("com.epages:restdocs-api-spec-mockmvc:0.18.2")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+
+    // ========== 테스트 의존성 ==========
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.security:spring-security-test")
+
+    // Reactive 테스트
+    testImplementation("io.projectreactor:reactor-test")
+
+    // WebFlux spring doc
+    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.7.0")
+
+    // REST Docs
     testImplementation("org.springframework.restdocs:spring-restdocs-webtestclient")
     testImplementation("com.epages:restdocs-api-spec-webtestclient:0.18.2")
+
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
     outputs.dir(snippetsDir)
+
+    // R2DBC 테스트
+    systemProperty("spring.r2dbc.url", "r2dbc:h2:mem:///testdb")
+    systemProperty("spring.r2dbc.username", "sa")
+    systemProperty("spring.r2dbc.password", "")
 }
 
 tasks.withType<org.asciidoctor.gradle.jvm.AsciidoctorTask> {
@@ -115,8 +120,8 @@ tasks.bootJar {
 }
 
 openapi3 {
-    title = "My API"
-    description = "My API description"
+    title = "Hilite"
+    description = "Reactive Spring Boot API with WebFlux and R2DBC"
     version = "0.1.0"
     format = "yaml"
 }

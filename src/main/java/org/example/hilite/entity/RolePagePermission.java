@@ -1,25 +1,29 @@
 package org.example.hilite.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-@Entity
-@Getter
-@Setter
+@Table("role_page_permission")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class RolePagePermission {
 
-  @Id @GeneratedValue private Long id;
+  @Id
+  private Long id;
 
-  @ManyToOne
-  @JoinColumn(name = "role_id")
-  private Role role;
+  @Column("role_id")
+  private Long roleId;
 
-  @ManyToOne
-  @JoinColumn(name = "access_page_id")
-  private AccessPage accessPage;
+  @Column("access_page_id")
+  private Long accessPageId;
+
+  public RolePagePermission(Long roleId, Long accessPageId) {
+    this.roleId = roleId;
+    this.accessPageId = accessPageId;
+  }
 }

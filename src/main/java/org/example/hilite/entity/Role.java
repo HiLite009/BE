@@ -1,30 +1,19 @@
 package org.example.hilite.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import java.util.HashSet;
-import java.util.Set;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 
-@Entity
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Role {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @Column("name")
   private String name;
-
-  @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<MemberRole> memberRoles = new HashSet<>();
-
-  @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<RolePagePermission> pagePermissions = new HashSet<>();
 }

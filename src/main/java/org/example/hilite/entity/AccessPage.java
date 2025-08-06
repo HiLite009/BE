@@ -1,35 +1,23 @@
 package org.example.hilite.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-@Entity
-@Getter
-@Setter
+@Table("access_page")
+@Data
+@NoArgsConstructor
 @AllArgsConstructor
-@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 public class AccessPage {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(nullable = false, unique = true)
+  @Column("path")
   private String path;
-
-  @OneToMany(mappedBy = "accessPage", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<RolePagePermission> pagePermissions = new HashSet<>();
 
   public AccessPage(String path) {
     this.path = path;

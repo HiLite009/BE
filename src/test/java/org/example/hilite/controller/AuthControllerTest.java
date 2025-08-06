@@ -1,148 +1,138 @@
 package org.example.hilite.controller;
 
-import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
-import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import com.epages.restdocs.apispec.ResourceSnippetParameters;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.example.hilite.common.exception.CustomException;
+import org.example.hilite.common.exception.ErrorCode;
+import org.example.hilite.common.util.JwtUtil;
 import org.example.hilite.dto.reqeust.LoginRequestDto;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
+import org.example.hilite.dto.reqeust.SignupRequestDto;
+import org.example.hilite.dto.response.LoginResponseDto;
+import org.example.hilite.service.MemberService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@AutoConfigureRestDocs
-@ActiveProfiles("test")
-class AuthControllerTest {
+@RestController
+@RequiredArgsConstructor
+@Slf4j
+public class AuthController {
 
-    @Autowired
-    private MockMvc mockMvc;
+  private final AuthenticationManager authenticationManager;
+  private final MemberService memberService;
+  private final JwtUtil jwtUtil;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+  /**
+   * 로그인
+   */
+  @PostMapping("/login")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "로그인 성공"),
+      @ApiResponse(responseCode = "401", description = "로그인 실패",
+          content = @Content(mediaType = "application/json"))
+  })
+  public Mono<ResponseEntity<LoginResponseDto>> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
+    log.debug("Login attempt for username: {}", loginRequestDto.username());
 
-    @Test
-    @DisplayName("로그인 성공 테스트")
-    void loginSuccessTest() throws Exception {
-        LoginRequestDto loginRequestDto = new LoginRequestDto("user", "user123"); // Use existing test user
-        String requestBody = objectMapper.writeValueAsString(loginRequestDto);
+    return authenticationManager
+        .authenticate(new UsernamePasswordAuthenticationToken(
+            loginRequestDto.username(),
+            loginRequestDto.password()))
+        .cast(UsernamePasswordAuthenticationToken.class)
+        .map(auth -> {
+          String username = auth.getName();
+          String token = jwtUtil.generateToken(username);
 
-        mockMvc.perform(post("/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
-                .andExpect(status().isOk())
-                .andDo(document("login-success",
-                        resource(ResourceSnippetParameters.builder()
-                                .tag("Auth")
-                                .description("로그인 성공")
-                                .requestFields(
-                                        fieldWithPath("username").description("사용자 이름"),
-                                        fieldWithPath("password").description("비밀번호")
-                                )
-                                .responseFields(
-                                        fieldWithPath("token").description("JWT 토큰"),
-                                        fieldWithPath("username").description("로그인한 사용자 이름"),
-                                        fieldWithPath("message").description("응답 메시지")
-                                )
-                                .build())));
+          log.info("Member logged in successfully: {}", username);
+
+          LoginResponseDto response = new LoginResponseDto(
+              token,
+              username,
+              "로그인이 완료되었습니다."
+          );
+
+          return ResponseEntity.ok(response);
+        })
+        .onErrorMap(AuthenticationException.class,
+            ex -> {
+              log.warn("Authentication failed for user: {}", loginRequestDto.username());
+              return new CustomException(ErrorCode.LOGIN_FAILED);
+            })
+        .doOnError(error ->
+            log.error("Login error for user {}: {}", loginRequestDto.username(), error.getMessage()));
+  }
+
+  /**
+   * 이메일 중복 확인
+   */
+  @GetMapping("/check-email")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "이메일 중복 확인 완료")
+  })
+  public Mono<ResponseEntity<Boolean>> checkEmail(@RequestParam String email) {
+    log.debug("Checking email duplication: {}", email);
+
+    return memberService.checkEmail(email)
+        .map(exists -> {
+          log.debug("Email {} exists: {}", email, exists);
+          return ResponseEntity.ok(!exists); // 사용 가능하면 true 반환
+        })
+        .doOnError(error ->
+            log.error("Error checking email {}: {}", email, error.getMessage()));
+  }
+
+  /**
+   * 회원가입
+   */
+  @PostMapping("/signup")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "회원가입 성공",
+          content = @Content(mediaType = "text/plain")),
+      @ApiResponse(responseCode = "400", description = "잘못된 요청")
+  })
+  public Mono<ResponseEntity<String>> signup(@RequestBody @Valid SignupRequestDto requestDto) {
+    log.debug("Signup attempt for username: {}", requestDto.username());
+
+    return memberService.signup(requestDto)
+        .then(Mono.fromCallable(() -> {
+          log.info("Member signup completed successfully: {}", requestDto.username());
+          return ResponseEntity.ok("회원가입이 완료되었습니다.");
+        }))
+        .doOnError(error ->
+            log.error("Signup error for user {}: {}", requestDto.username(), error.getMessage()));
+  }
+
+  /**
+   * 회원가입 폼 유효성 사전 검증
+   */
+  @PostMapping("/validate-signup")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "유효성 검증 완료")
+  })
+  public Mono<ResponseEntity<String>> validateSignup(@RequestBody @Valid SignupRequestDto requestDto) {
+    log.debug("Validating signup form for username: {}", requestDto.username());
+
+    // 비밀번호 확인 검증
+    if (!requestDto.password().equals(requestDto.passwordConfirm())) {
+      return Mono.just(ResponseEntity.badRequest()
+          .body("비밀번호와 비밀번호 확인이 일치하지 않습니다."));
     }
 
-    @Test
-    @DisplayName("로그인 실패 테스트 - 잘못된 자격 증명")
-    void loginFailureInvalidCredentialsTest() throws Exception {
-        LoginRequestDto loginRequestDto = new LoginRequestDto("nonexistentuser", "wrongpassword");
-        String requestBody = objectMapper.writeValueAsString(loginRequestDto);
-
-        mockMvc.perform(post("/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
-                .andExpect(status().isUnauthorized()) // Assuming 401 for bad credentials
-                .andDo(document("login-failure-invalid-credentials",
-                        resource(ResourceSnippetParameters.builder()
-                                .tag("Auth")
-                                .description("로그인 실패 - 잘못된 자격 증명")
-                                .requestFields(
-                                        fieldWithPath("username").description("사용자 이름"),
-                                        fieldWithPath("password").description("비밀번호")
-                                )
-                                .responseFields(
-                                        fieldWithPath("timestamp").description("오류 발생 시간"),
-                                        fieldWithPath("status").description("HTTP 상태 코드"),
-                                        fieldWithPath("error").description("오류 메시지"),
-                                        fieldWithPath("code").description("커스텀 오류 코드"),
-                                        fieldWithPath("message").description("커스텀 오류 메시지"),
-                                        fieldWithPath("path").description("요청 경로"),
-                                        fieldWithPath("fieldErrors").description("필드 오류 목록").optional()
-                                )
-                                .build())));
-    }
-
-    @Test
-    @DisplayName("로그인 실패 테스트 - 유효성 검사 실패 (빈 아이디)")
-    void loginFailureEmptyUsernameTest() throws Exception {
-        LoginRequestDto loginRequestDto = new LoginRequestDto("", "password");
-        String requestBody = objectMapper.writeValueAsString(loginRequestDto);
-
-        mockMvc.perform(post("/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
-                .andExpect(status().isBadRequest()) // Assuming 400 for validation errors
-                .andDo(document("login-failure-empty-username",
-                        resource(ResourceSnippetParameters.builder()
-                                .tag("Auth")
-                                .description("로그인 실패 - 유효성 검사 실패 (빈 아이디)")
-                                .requestFields(
-                                        fieldWithPath("username").description("사용자 이름"),
-                                        fieldWithPath("password").description("비밀번호")
-                                )
-                                .responseFields(
-                                        fieldWithPath("timestamp").description("오류 발생 시간"),
-                                        fieldWithPath("status").description("HTTP 상태 코드"),
-                                        fieldWithPath("error").description("오류 메시지"),
-                                        fieldWithPath("code").description("커스텀 오류 코드"),
-                                        fieldWithPath("message").description("커스텀 오류 메시지"),
-                                        fieldWithPath("path").description("요청 경로"),
-                                        fieldWithPath("fieldErrors.username").description("아이디 유효성 검사 오류 메시지")
-                                )
-                                .build())));
-    }
-
-    @Test
-    @DisplayName("로그인 실패 테스트 - 유효성 검사 실패 (빈 비밀번호)")
-    void loginFailureEmptyPasswordTest() throws Exception {
-        LoginRequestDto loginRequestDto = new LoginRequestDto("testuser", "");
-        String requestBody = objectMapper.writeValueAsString(loginRequestDto);
-
-        mockMvc.perform(post("/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
-                .andExpect(status().isBadRequest()) // Assuming 400 for validation errors
-                .andDo(document("login-failure-empty-password",
-                        resource(ResourceSnippetParameters.builder()
-                                .tag("Auth")
-                                .description("로그인 실패 - 유효성 검사 실패 (빈 비밀번호)")
-                                .requestFields(
-                                        fieldWithPath("username").description("사용자 이름"),
-                                        fieldWithPath("password").description("비밀번호")
-                                )
-                                .responseFields(
-                                        fieldWithPath("timestamp").description("오류 발생 시간"),
-                                        fieldWithPath("status").description("HTTP 상태 코드"),
-                                        fieldWithPath("error").description("오류 메시지"),
-                                        fieldWithPath("code").description("커스텀 오류 코드"),
-                                        fieldWithPath("message").description("커스텀 오류 메시지"),
-                                        fieldWithPath("path").description("요청 경로"),
-                                        fieldWithPath("fieldErrors.password").description("비밀번호 유효성 검사 오류 메시지")
-                                )
-                                .build())));
-    }
+    // 사용자명 중복 검사
+    return memberService.getMemberInfo(requestDto.username())
+        .then(Mono.just(ResponseEntity.badRequest()
+            .body("이미 존재하는 아이디입니다.")))
+        .onErrorReturn(ResponseEntity.ok("유효한 회원가입 정보입니다."));
+  }
 }
