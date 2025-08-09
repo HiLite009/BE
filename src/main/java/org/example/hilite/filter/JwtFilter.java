@@ -31,6 +31,7 @@ public class JwtFilter extends OncePerRequestFilter {
       HttpServletRequest request, HttpServletResponse response, FilterChain chain)
       throws ServletException, IOException {
 
+    logger.info("=== JWT FILTER STARTED ===");
     String header = request.getHeader("Authorization");
     logger.info("Request URI: " + request.getRequestURI());
     logger.info("Authorization Header: " + header);
@@ -71,6 +72,7 @@ public class JwtFilter extends OncePerRequestFilter {
       }
     }
 
+    logger.info("=== JWT FILTER ENDING ===");
     chain.doFilter(request, response);
   }
 }

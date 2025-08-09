@@ -40,7 +40,7 @@ public class JwtUtil {
           .getBody()
           .getSubject();
     } catch (JwtException e) {
-      throw new RuntimeException("Invalid JWT");
+      throw new RuntimeException("Invalid JWT: " + e.getMessage(), e);
     }
   }
 }

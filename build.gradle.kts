@@ -55,43 +55,21 @@ val snippetsDir by extra { file("build/generated-snippets") }
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
-
-    // JPA
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-
-    // R2DBC
-    // implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
-
-    // WebFlux 의존성
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
-
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-
-    // 데이터베이스 드라이버
-    runtimeOnly("com.mysql:mysql-connector-j")      // MySQL JDBC 드라이버 (JPA용)
-    //runtimeOnly("io.asyncer:r2dbc-mysql:1.1.2")     // MySQL R2DBC 드라이버 (WebFlux용)
-     runtimeOnly("com.h2database:h2")                // H2 JDBC 드라이버
-    //runtimeOnly("io.r2dbc:r2dbc-h2") // H2 R2DBC 드라이버
-
+    runtimeOnly("com.mysql:mysql-connector-j")
+    runtimeOnly("com.h2database:h2") // CI 환경에서 사용
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
-
     implementation("org.springframework.boot:spring-boot-starter-security")
-
-    // jwt
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
-
-    // open api
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0") // springdoc-openapi
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testImplementation("com.epages:restdocs-api-spec-mockmvc:0.18.2")
-    testImplementation("org.springframework.restdocs:spring-restdocs-webtestclient")
-    testImplementation("com.epages:restdocs-api-spec-webtestclient:0.18.2")
 }
 
 tasks.withType<Test> {

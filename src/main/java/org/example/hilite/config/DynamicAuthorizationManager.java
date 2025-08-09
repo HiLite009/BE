@@ -41,7 +41,7 @@ public class DynamicAuthorizationManager
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.toList());
 
-    log.debug(
+    log.info(
         "Checking authorization for user: {} with roles: {} for path: {}",
         auth.getName(),
         userRoles,
@@ -49,7 +49,7 @@ public class DynamicAuthorizationManager
 
     boolean hasPermission = dynamicPermissionService.hasPermission(requestPath, userRoles);
 
-    log.debug("Authorization decision for {}: {}", requestPath, hasPermission);
+    log.info("Authorization decision for {}: {}", requestPath, hasPermission);
     return new AuthorizationDecision(hasPermission);
   }
 }
